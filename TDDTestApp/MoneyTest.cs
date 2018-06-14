@@ -1,5 +1,6 @@
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using TDDApp;
 using Xunit;
 
@@ -35,11 +36,43 @@ namespace TDDTestApp
         [Fact]
         public void TestSimpleAddition()
         {
-            Action sum = { return Money.Dollar(5).Plus(Money.Dollar(5));};
+            var five = Money.Dollar(5);
+
+            IExpression expression = five.Plus(five);
+
             var bank = new Bank();
-            var reduced = );
+            var reduced = bank.Reduce(expression, "USD");
 
             Assert.Equal(Money.Dollar(10), reduced);
         }
+
+        [Fact]
+        public void TestPlusReturnsSum()
+        {
+            var five = Money.Dollar(5);
+            IExpression result = five.Plus(five);
+            var sum = (Sum) result;
+            Assert.Equal(five, sum.Augend);
+            Assert.Equal(five, sum.Addend);
+        }
+
+        [Fact]
+        public void TestReduceSum()
+        {
+            var sum = new Sum(Money.Dollar(3), Money.Dollar(4));
+            var bank = new Bank();
+            var result = bank.Reduce(sum, "USD");
+            Assert.Equal(Money.Dollar(7), result);
+        }
+
+        [Fact]
+        public void TestReduceMoney()
+        {
+            var bank = new Bank();
+            var result = bank.Reduce(Money.Dollar(1), "USD");
+            Assert.Equal(Money.Dollar(1), result);
+        }
+
+
     }
 }
