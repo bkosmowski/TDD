@@ -1,4 +1,6 @@
-﻿namespace TDDApp
+﻿using System.Data;
+
+namespace TDDApp
 {
     public class Money : IExpression
     {
@@ -17,7 +19,7 @@
         public static Money Dollar(int amount) => new Money(amount, "USD");
         public static Money Franc(int amount) => new Money(amount, "CHF");
 
-        public Money Times(int multiplier) => new Money(multiplier * Amount, _currency);
+        public IExpression Times(int multiplier) => new Money(multiplier * Amount, _currency);
 
         public string Currency() => _currency;
 
@@ -25,8 +27,13 @@
 
         public override string ToString() => Amount + " " + _currency;
 
-        public IExpression Plus(Money added) => new Money(Amount + added.Amount, Currency());
+        public IExpression Plus(IExpression addend) => new Sum(this, addend);
 
-        public Money Reduce(string to) => this;
+        public Money Reduce(Bank bank, string to)
+        {
+            var rate = Currency().Equals("CHF") && to.Equals("USD") ? 2 : 1;
+
+            return new Money(Amount / rate, to);
+        }
     }
 }
